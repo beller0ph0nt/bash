@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# disk creation
+#dd if=/dev/random of=disk bs=1M count=10
 
 DISK="./disk"
 LOOP="/dev/loop0"
