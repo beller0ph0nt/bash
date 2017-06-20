@@ -1,6 +1,9 @@
 #!/bin/bash
 
 SITE="http://www.deeplearningbook.org"
+PHANTOMJS_DIR="phantomjs-2.1.1-linux-i686"
+PHANTOMJS_TAR=$PHANTOMJS_DIR".tar.bz2"
+PHANTOMJS_URL="https://bitbucket.org/ariya/phantomjs/downloads/"$PHANTOMJS_TAR
 TMP_DIR="__tmp__"
 
 function get_regexp_str()
@@ -30,20 +33,15 @@ CONTENTS=$(get_content_urls $SITE)
 
 rm -rf $TMP_DIR
 mkdir $TMP_DIR
+wget -O $TMP_DIR/$PHANTOMJS_TAR $PHANTOMJS_URL
+tar -xjf $TMP_DIR/$PHANTOMJS_TAR -C $TMP_DIR
 
-# download phantomjs to TMP_DIR
-#...
+for url in $CONTENTS
+do
+    pdf_name=$(echo $url | sed 's/^.*contents\///' | sed 's/html/pdf/')
+    echo -n "convert $url to pdf $pdf_name "
+    $TMP_DIR/$PHANTOMJS_DIR/bin/phantomjs $TMP_DIR/$PHANTOMJS_DIR/examples/rasterize.js $url $TMP_DIR/$pdf_name "11.7in*16.5in"
+    echo "[ OK ]"
+done
 
-# extract phantomjs
-#...
-
-
-# download book
-#for url in $CONTENTS
-#do
-#    echo -n "convert "$url" to pdf "
-#    phantomjs examples/rasterize.js http://www.deeplearningbook.org/contents/intro.html 2.pdf "11.7in*16.5in"
-#    echo "[ OK ]"
-#done
-
-rm -f $TMP_DIR
+#rm -rf $TMP_DIR
