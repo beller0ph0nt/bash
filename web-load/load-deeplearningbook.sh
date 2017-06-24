@@ -36,12 +36,26 @@ mkdir $TMP_DIR
 wget -O $TMP_DIR/$PHANTOMJS_TAR $PHANTOMJS_URL
 tar -xjf $TMP_DIR/$PHANTOMJS_TAR -C $TMP_DIR
 
+INDEX=0
 for url in $CONTENTS
 do
     pdf_name=$(echo $url | sed 's/^.*contents\///' | sed 's/html/pdf/')
-    echo -n "convert $url to pdf $pdf_name "
-    $TMP_DIR/$PHANTOMJS_DIR/bin/phantomjs $TMP_DIR/$PHANTOMJS_DIR/examples/rasterize.js $url $TMP_DIR/$pdf_name "11.7in*16.5in"
-    echo "[ OK ]"
+    echo -n "convert $url to pdf $INDEX.$pdf_name "
+
+    ATTEMPT=0
+    while : ; do
+        $TMP_DIR/$PHANTOMJS_DIR/bin/phantomjs $TMP_DIR/$PHANTOMJS_DIR/examples/rasterize.js $url $TMP_DIR/$INDEX'.'$pdf_name "11.7in*16.5in"
+        if [ $? -eq 0 ]; then
+            echo "[ OK ]"
+            break;
+        elif (( ATTEMPT > 1 )); then
+            echo "[ ERROR ]"
+            break;
+        else
+            ATTEMPT=$((ATTEMPT + 1))
+        fi
+    done
+    ((INDEX++))
 done
 
 #rm -rf $TMP_DIR
